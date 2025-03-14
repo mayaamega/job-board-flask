@@ -3,8 +3,17 @@ import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Accept"],
+        "supports_credentials": True
+    }
+})
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['DATABASE'] = 'job_board.db'
 
@@ -199,6 +208,104 @@ def search():
     
     jobs = db.execute(sql, params).fetchall()
     return render_template('search_results.html', jobs=jobs, query=query, location=location)
+
+# API Endpoints
+# API Routes
+@app.route('/api/jobs', methods=['GET'])
+def get_jobs():
+    db = get_db()
+    jobs = db.execute('SELECT jobs.*, companies.name as company_name, '
+                     '(SELECT AVG(rating) FROM company_ratings WHERE company_id = jobs.company_id) as avg_rating '
+                     'FROM jobs JOIN companies ON jobs.company_id = companies.id '
+                     'ORDER BY posted_date DESC').fetchall()
+    
+    job_list = []
+    for job in jobs:
+        job_dict = dict(job)
+        job_dict['avg_rating'] = float(job_dict['avg_rating']) if job_dict['avg_rating'] else 0
+        job_list.append(job_dict)
+    
+    return jsonify(job_list)
+
+@app.route('/api/jobs/<int:job_id>', methods=['GET'])
+def get_job(job_id):
+    db = get_db()
+    job = db.execute('SELECT jobs.*, companies.name as company_name, companies.description as company_description, '
+                    '(SELECT AVG(rating) FROM company_ratings WHERE company_id = jobs.company_id) as avg_rating '
+                    'FROM jobs JOIN companies ON jobs.company_id = companies.id '
+                    'WHERE jobs.id = ?', (job_id,)).fetchone()
+    
+    if job is None:
+        return jsonify({'error': 'Job not found'}), 404
+    
+    return jsonify(dict(job))
+
+@app.route('/api/companies', methods=['GET'])
+def get_companies():
+    db = get_db()
+    companies = db.execute('SELECT *, (SELECT AVG(rating) FROM company_ratings WHERE company_id = companies.id) as avg_rating '
+                          'FROM companies ORDER BY name').fetchall()
+    return jsonify([dict(company) for company in companies])
+
+@app.route('/api/companies/<int:company_id>', methods=['GET'])
+def get_company(company_id):
+    db = get_db()
+    company = db.execute('SELECT *, (SELECT AVG(rating) FROM company_ratings WHERE company_id = ?) as avg_rating '
+                        'FROM companies WHERE id = ?', (company_id, company_id)).fetchone()
+    
+    if company is None:
+        return jsonify({'error': 'Company not found'}), 404
+    
+    jobs = db.execute('SELECT * FROM jobs WHERE company_id = ? ORDER BY posted_date DESC', (company_id,)).fetchall()
+    ratings = db.execute('SELECT * FROM company_ratings WHERE company_id = ? ORDER BY created_at DESC', (company_id,)).fetchall()
+    
+    return jsonify({
+        'company': dict(company),
+        'jobs': [dict(job) for job in jobs],
+        'ratings': [dict(rating) for rating in ratings]
+    })
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    
+    if not username or not password:
+        return jsonify({'error': 'Username and password are required'}), 400
+    
+    db = get_db()
+    user = db.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+    
+    if user is None or not check_password_hash(user['password'], password):
+        return jsonify({'error': 'Invalid username or password'}), 401
+    
+    return jsonify({
+        'id': user['id'],
+        'username': user['username'],
+        'user_type': user['user_type']
+    })
+
+@app.route('/api/auth/register', methods=['POST'])
+def api_register():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
+    user_type = data.get('user_type')
+    
+    if not all([username, password, email, user_type]):
+        return jsonify({'error': 'All fields are required'}), 400
+    
+    db = get_db()
+    if db.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone() is not None:
+        return jsonify({'error': 'Username already exists'}), 400
+    
+    db.execute('INSERT INTO users (username, password, email, user_type) VALUES (?, ?, ?, ?)',
+              (username, generate_password_hash(password), email, user_type))
+    db.commit()
+    
+    return jsonify({'message': 'Registration successful'}), 201
 
 if __name__ == '__main__':
     app.run(debug=True)
