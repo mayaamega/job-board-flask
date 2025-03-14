@@ -26,3 +26,25 @@ A modern job board platform built with Flask and Next.js, featuring job listings
 - Node.js and npm/pnpm
 - SQLite
 
+## Setup
+
+1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd job-board-flask
+```
+
+2. Set up Python virtual environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+3. Initialize the database
+
+```bash
+flask initdb
+```
