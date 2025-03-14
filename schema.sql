@@ -50,10 +50,9 @@ INSERT INTO companies (name, description, website, location) VALUES
 ('DesignHub', 'Creative design agency', 'https://designhub.example.com', 'New York, NY'),
 ('DataSystems', 'Big data and analytics', 'https://datasystems.example.com', 'Austin, TX');
 
+-- Insert sample jobs data
 INSERT INTO jobs (title, company_id, location, description, requirements, salary_range, posted_date) VALUES
-('Senior Software Engineer', 1, 'San Francisco, CA', 'Join our team to build cutting-edge software solutions.', 'Python, JavaScript, 5+ years experience', '$120,000 - $150,000', '2023-05-15'),
-('UX Designer', 2, 'New York, NY', 'Design beautiful and intuitive user interfaces for our clients.', 'Figma, Adobe XD, 3+ years experience', '$90,000 - $110,000', '2023-05-14'),
-('Data Scientist', 3, 'Austin, TX', 'Analyze complex data sets to drive business decisions.', 'Python, SQL, Machine Learning, 2+ years experience', '$100,000 - $130,000', '2023-05-13'),
-('Frontend Developer', 1, 'Remote', 'Build responsive web applications using modern frameworks.', 'React, TypeScript, 2+ years experience', '$80,000 - $110,000', '2023-05-12'),
-('Product Manager', 2, 'New York, NY', 'Lead product development from conception to launch.', 'Agile, 4+ years experience in tech', '$110,000 - $140,000', '2023-05-11');
+('Senior Software Engineer', 1, 'San Francisco, CA', 'Join our team to build innovative solutions', 'Python, React, 5+ years experience', '$120k-$180k', date('now')),
+('UI/UX Designer', 2, 'New York, NY', 'Create beautiful user experiences', 'Figma, Adobe XD, 3+ years experience', '$90k-$130k', date('now')),
+('Full Stack Developer', 1, 'Remote', 'Work on exciting projects', 'JavaScript, Node.js, React', '$100k-$150k', date('now'));
 
