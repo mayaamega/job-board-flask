@@ -48,3 +48,19 @@ pip install -r requirements.txt
 ```bash
 flask initdb
 ```
+
+4. Install frontend dependencies
+
+```bash
+pnpm install
+```
+
+5. Start the development server
+
+```bash
+# Start Flask backend
+flask run
+
+# In a separate terminal, start the frontend
+pnpm run dev
+```
