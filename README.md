@@ -64,3 +64,27 @@ flask run
 # In a separate terminal, start the frontend
 pnpm run dev
 ```
+
+## Project Structure
+
+```
+├── app.py              # Flask application entry point
+├── schema.sql          # Database schema
+├── static/             # Static assets
+│   ├── css/           # CSS stylesheets
+│   └── js/            # JavaScript files
+├── templates/          # HTML templates
+├── components/         # React components
+└── lib/               # Utility functions
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a new branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
