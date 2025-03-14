@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block title %}Search Results | JobBoard{% endblock %}
+
+{% block content %}
+<div class="search-results">
+    <div class="search-header">
+        <h1>Search Results</h1>
+        <div class="search-summary">
+            {% if jobs|length > 0 %}
+                <p>Found {{ jobs|length }} job{% if jobs|length != 1 %}s{% endif %}</p>
+            {% else %}
+                <p>No jobs found matching your criteria</p>
+            {% endif %}
+        </div>
+        <form action="{{ url_for('search') }}" method="get" class="search-form">
+            <div class="search-inputs">
+                <div class="input-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" placeholder="Job title, keywords, or company" value="{{ query }}">
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <input type="text" name="location" placeholder="City or remote" value="{{ location }}">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="jobs-container">
+        {% for job in jobs %}
+        <div class="job-card">
+            <div class="job-card-header">
+                <h3><a href="{{ url_for('job_detail', job_id=job['id']) }}">{{ job['title'] }}</a></h3>
+                <div class="company-rating">
+                    <a href="{{ url_for('company_detail', company_id=job['company_id']) }}">{{ job['company_name'] }}</a>
+                    <div class="stars">
+                        {% set avg_rating = job['avg_rating']|float or 0 %}
+                        {% for i in range(5) %}
+                            {% if i < avg_rating|int %}
+                                <i class="fas fa-star"></i>
+                            {% elif i < avg_rating and i >= avg_rating|int %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="rating-value">{{ "%.1f"|format(avg_rating) }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="job-card-body">
+                <div class="job-info">
+                    <span><i class="fas fa-map-marker-alt"></i> {{ job['location'] }}</span>
+                    {% if job['salary_range'] %}
+                    <span><i class="fas fa-money-bill-wave"></i> {{ job['salary_range'] }}</span>
+                    {% endif %}
+                    <span><i class="far fa-calendar-alt"></i> Posted on {{ job['posted_date'] }}</span>
+                </div>
+                <p class="job-description">{{ job['description']|truncate(150) }}</p>
+            </div>
+            <div class="job-card-footer">
+                <a href="{{ url_for('job_detail', job_id=job['id']) }}" class="btn btn-outline">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

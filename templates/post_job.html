@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+
+{% block title %}Post a Job | JobBoard{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Post a New Job</h1>
+    <form action="{{ url_for('post_job') }}" method="post">
+        <div class="form-group">
+            <label for="title">Job Title</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="company_id">Company</label>
+            <select id="company_id" name="company_id" required>
+                <option value="">Select a company</option>
+                {% for company in companies %}
+                <option value="{{ company['id'] }}">{{ company['name'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" required>
+        </div>
+        <div class="form-group">
+            <label for="salary_range">Salary Range</label>
+            <input type="text" id="salary_range" name="salary_range" placeholder="e.g. $50,000 - $70,000">
+        </div>
+        <div class="form-group">
+            <label for="description">Job Description</label>
+            <textarea id="description" name="description" rows="6" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="requirements">Requirements</label>
+            <textarea id="requirements" name="requirements" rows="6"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Post Job</button>
+    </form>
+</div>
+{% endblock %}
+

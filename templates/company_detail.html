@@ -1,0 +1,173 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ company['name'] }} | JobBoard{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{{ url_for('index') }}">Home</a> &gt; {{ company['name'] }}
+</div>
+
+<div class="company-detail">
+    <div class="company-header">
+        <h1>{{ company['name'] }}</h1>
+        <div class="company-rating">
+            <div class="stars">
+                {% set avg_rating = company['avg_rating']|float or 0 %}
+                {% for i in range(5) %}
+                    {% if i < avg_rating|int %}
+                        <i class="fas fa-star"></i>
+                    {% elif i < avg_rating and i >= avg_rating|int %}
+                        <i class="fas fa-star-half-alt"></i>
+                    {% else %}
+                        <i class="far fa-star"></i>
+                    {% endif %}
+                {% endfor %}
+                <span class="rating-value">{{ "%.1f"|format(avg_rating) }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="company-meta">
+        {% if company['location'] %}
+        <div class="meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ company['location'] }}</span>
+        </div>
+        {% endif %}
+        {% if company['website'] %}
+        <div class="meta-item">
+            <i class="fas fa-globe"></i>
+            <a href="{{ company['website'] }}" target="_blank">{{ company['website'] }}</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="company-content">
+        <div class="section">
+            <h2>About {{ company['name'] }}</h2>
+            <p>{{ company['description'] }}</p>
+        </div>
+
+        <div class="section">
+            <h2>Open Positions</h2>
+            {% if jobs %}
+                <div class="jobs-container">
+                    {% for job in jobs %}
+                    <div class="job-card">
+                        <div class="job-card-header">
+                            <h3><a href="{{ url_for('job_detail', job_id=job['id']) }}">{{ job['title'] }}</a></h3>
+                        </div>
+                        <div class="job-card-body">
+                            <div class="job-info">
+                                <span><i class="fas fa-map-marker-alt"></i> {{ job['location'] }}</span>
+                                {% if job['salary_range'] %}
+                                <span><i class="fas fa-money-bill-wave"></i> {{ job['salary_range'] }}</span>
+                                {% endif %}
+                                <span><i class="far fa-calendar-alt"></i> Posted on {{ job['posted_date'] }}</span>
+                            </div>
+                            <p class="job-description">{{ job['description']|truncate(150) }}</p>
+                        </div>
+                        <div class="job-card-footer">
+                            <a href="{{ url_for('job_detail', job_id=job['id']) }}" class="btn btn-outline">View Details</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No open positions at this time.</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2>Company Reviews</h2>
+            
+            {% if 'user_id' in session %}
+            <div class="rating-form">
+                <h3>Rate this company</h3>
+                <form action="{{ url_for('rate_company', company_id=company['id']) }}" method="post">
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" required>
+                        <label for="star5"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1"><i class="fas fa-star"></i></label>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="comment" placeholder="Share your experience working at this company" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+            {% else %}
+            <p><a href="{{ url_for('login') }}">Log in</a> to leave a review.</p>
+            {% endif %}
+            
+            <div class="reviews">
+                {% if ratings %}
+                    {% for rating in ratings %}
+                    <div class="review">
+                        <div class="review-header">
+                            <div class="stars">
+                                {% for i in range(5) %}
+                                    {% if i < rating['rating'] %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="review-date">{{ rating['created_at'] }}</span>
+                        </div>
+                        <div class="review-body">
+                            <p>{{ rating['comment'] }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No reviews yet. Be the first to review this company!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Star rating functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const starLabels = document.querySelectorAll('.star-rating label');
+        
+        starLabels.forEach(label => {
+            label.addEventListener('mouseover', function() {
+                // Get the current star's position
+                const currentStar = this;
+                const stars = Array.from(starLabels);
+                const currentIndex = stars.indexOf(currentStar);
+                
+                // Highlight all stars up to the current one
+                stars.forEach((star, index) => {
+                    if (index <= currentIndex) {
+                        star.classList.add('hover');
+                    } else {
+                        star.classList.remove('hover');
+                    }
+                });
+            });
+            
+            label.addEventListener('mouseout', function() {
+                // Remove hover class from all stars
+                starLabels.forEach(star => {
+                    star.classList.remove('hover');
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
+
