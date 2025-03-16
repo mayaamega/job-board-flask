@@ -38,7 +38,7 @@ interface Job {
   const handleViewJob = (jobId: number) => {
     router.push(`/job/${jobId}`)
   }
-
+   
   return (
     <main className="container mx-auto p-6">
       <h1 className="text-4xl font-bold mb-6">Welcome to Job Board</h1>
