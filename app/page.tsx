@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { API_ENDPOINTS, fetchApi } from './api/config'
-
+   
 interface Job {
   id: number
   title: string
