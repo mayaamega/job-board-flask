@@ -14,8 +14,7 @@ interface Job {
   salary_range: string
   avg_rating: number
 }
-
-export default function HomePage() {
+  export default function HomePage() {
   const router = useRouter()
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
