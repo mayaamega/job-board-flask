@@ -1,0 +1,8 @@
+@startuml
+actor User
+User -> CreateJobForm: fill job data
+CreateJobForm -> JobController: validate and submit
+JobController -> DB: insert new job
+DB --> JobController: success
+JobController -> User: show job list
+@enduml

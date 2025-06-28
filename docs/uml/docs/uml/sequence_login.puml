@@ -1,0 +1,8 @@
+@startuml
+actor User
+User -> LoginPage: input username/password
+LoginPage -> AuthController: validate()
+AuthController -> DB: check credentials
+DB --> AuthController: result
+AuthController -> User: redirect to dashboard
+@enduml
